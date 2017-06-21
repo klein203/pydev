@@ -1,8 +1,9 @@
 '''
-Created on 2017Äê6ÔÂ21ÈÕ
+Created on 2017ï¿½ï¿½6ï¿½ï¿½21ï¿½ï¿½
 
 @author: xusheng
 '''
 
 if __name__ == '__main__':
+    print('hello world!')
     pass
