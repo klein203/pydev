@@ -5,8 +5,7 @@ Created on 2017年7月7日
 '''
 
 import re
-from sklearn import tree, preprocessing
-
+from vin import Tree, TreePlotter
 
 def splitLineCol(line):
     dataset = line.split(',')
@@ -552,6 +551,30 @@ def checkValidVin(vin):
             
     return code
 
+def splitVinFeatures(s):
+    vinFeatures = []
+    vinFeatures.append(s[0:3])    # WMI
+    vinFeatures.append(s[3:9])    # VDS
+    vinFeatures.append(s[9])  # year
+    vinFeatures.append(s[10]) # assembler
+#     print(vinFeatures)
+    return vinFeatures
+
+def createDataSet():
+    sourcefilename = 'd:/tmp/result_small.txt'
+    dataSet = []
+    with open(sourcefilename, 'r', encoding='utf-8') as fr:
+        for line in fr.readlines():
+            record = splitLineCol(line.strip())
+            nFeatures = splitVinFeatures(record[3])
+            nFeatures.append(record[1])
+            dataSet.append(nFeatures)
+
+#     col_labels = ['id', 'model_id', 'model_name', 'vin', 'del_flag', 'asset_id']
+#     vin_labels = ['WMI', 'VDS', 'year', 'assembler']
+    res_labels = ['WMI', 'VDS', 'year', 'assembler', 'model_id']
+    return dataSet, res_labels
+
 def dataPrepare():
     sourcefilename = 'd:/tmp/t_cust_vehicle.txt'
     resultfilename = 'd:/tmp/result.txt'
@@ -585,61 +608,25 @@ def dataPrepare():
     print('total lines %d, valid lines %d, error %.2f%%' % (total_line_cnt, valid_line_cnt, 100.0*error_line_cnt/total_line_cnt))
     print('done!')
 
-def splitVinFeatures(s):
-    vinFeatures = []
-    vinFeatures.append(s[0:3])    # WMI
-    vinFeatures.append(s[3:9])    # VDS
-    vinFeatures.append(s[9])  # year
-    vinFeatures.append(s[10]) # assembler
-#     print(vinFeatures)
-    return vinFeatures
+def createTree(filename):
+    dataSet, labels = createDataSet()
+    print('dataset done!')
 
-def createDataSet():
-    sourcefilename = 'd:/tmp/result.txt'
-    X = []
-    y = []
-    with open(sourcefilename, 'r', encoding='utf-8') as fr:
-        for line in fr.readlines():
-            record = splitLineCol(line.strip())
-            nFeatures = splitVinFeatures(record[3])
-            X.append(nFeatures)
-            y.append(record[1])
-
-#     col_labels = ['id', 'model_id', 'model_name', 'vin', 'del_flag', 'asset_id']
-#     vin_labels = ['WMI', 'VDS', 'year', 'assembler']
-#     res_labels = ['WMI', 'VDS', 'year', 'assembler', 'model_id']
-    return X, y
-
-def storeTree(inputTree, filename):
-    import pickle
-    fw = open(filename, 'w')
-    pickle.dump(inputTree, fw)
-    fw.close()
+    tree = Tree.createTree(dataSet, labels)
+    print('tree done!')
     
-def grabTree(filename):
-    import pickle
-    fr = open(filename)
-    return pickle.load(fr)
+    Tree.storeTree(tree, filename)
+    print('all done!')
 
-if __name__ == '__main__':    
+def loadTree(filename):
+    tree = Tree.grabTree(filename)
+    print('tree done!')
+    
+    TreePlotter.createPlot(tree)
+    print('plot done!')
+
+if __name__ == '__main__':
+    filename = 'd:/tmp/vintree.pickle' 
 #     dataPrepare()
-    filename = 'd:/tmp/vinDTs.pickle'
-#     X, y = createDataSet()
-    X = [['LSV', 'NR41Z1', 'A', '2'], ['LSJ', 'Z14C39', 'C', 'S']]
-    y = [5529, 5659]
-#     print('dataset done!')
-    
-    enc = preprocessing.OneHotEncoder()
-    enc.fit([[0, 0, 3], [1, 1, 0], [0, 2, 1], [1, 0, 2]])
-    print(enc)
-    
-    print(enc.transform([[0, 1, 3]]).toarray())
-#     print(X[0])
-
-#     clf = tree.DecisionTreeClassifier()
-#     clf = clf.fit(X, y)
-#     print('tree done!')
-
-#     storeTree(clf, filename)
-#     print('all done!')
+    loadTree(filename)
     
