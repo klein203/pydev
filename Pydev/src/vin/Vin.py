@@ -609,7 +609,7 @@ def dataPrepare():
     print('done!')
 
 def createTree(filename):
-    dataSet, labels = createDataSet()
+    dataSet, labels = createDataSet(filename)
     print('dataset done!')
 
     tree = Tree.createTree(dataSet, labels)
@@ -621,12 +621,22 @@ def createTree(filename):
 def loadTree(filename):
     tree = Tree.grabTree(filename)
     print('tree done!')
-    
+    return tree
+
+def displayTree(tree):
     TreePlotter.createPlot(tree)
     print('plot done!')
 
 if __name__ == '__main__':
-    filename = 'd:/tmp/vintree.pickle' 
+    dumpfilename = 'd:/tmp/vintree.pickle' 
+    testfilename = 'd:/tmp/vintest.txt' 
 #     dataPrepare()
-    loadTree(filename)
+    tree = loadTree(dumpfilename)
+#     print(tree)
+    testDataSet, labels = Tree.createDataSet(testfilename)
+#     print(testDataSet, labels)
+    
+    for item in testDataSet:
+        Tree.classify(tree, labels, item)
+    
     

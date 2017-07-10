@@ -20,15 +20,15 @@ def splitLineCol(line):
     dataset = line.split(',')
     return dataset
 
-def createDataSet():
-    sourcefilename = 'd:/tmp/result_small.txt'
+def createDataSet(filename):
     dataSet = []
-    with open(sourcefilename, 'r', encoding='utf-8') as fr:
+    with open(filename, 'r', encoding='utf-8') as fr:
         for line in fr.readlines():
             record = splitLineCol(line.strip())
             nFeatures = splitVinFeatures(record[3])
             nFeatures.append(record[1])
             dataSet.append(nFeatures)
+#             print(nFeatures)
 
 #     col_labels = ['id', 'model_id', 'model_name', 'vin', 'del_flag', 'asset_id']
 #     vin_labels = ['WMI', 'VDS', 'year', 'assembler']
@@ -110,9 +110,12 @@ def createTree(dataSet, labels):
     return myTree
 
 def classify(inputTree, featLabels, testVec):
-    firstStr = inputTree.keys()[0]
+    for item in inputTree.items():
+        firstStr = item[0]
+        break
     secondDict = inputTree[firstStr]
     featIndex = featLabels.index(firstStr)
+    print(featIndex)
     key = testVec[featIndex]
     valueOfFeat = secondDict[key]
     if isinstance(valueOfFeat, dict): 
@@ -133,12 +136,14 @@ def grabTree(filename):
     return pickle.load(fr)
 
 if __name__ == '__main__':
-    filename = 'd:/tmp/vintree.pickle'
-    dataSet, labels = createDataSet()
+    sourcefilename = 'd:/tmp/result_training_100000.txt'
+    dumpfilename = 'd:/tmp/vintree_100000.pickle'
+    
+    dataSet, labels = createDataSet(sourcefilename)
     print('dataset done!')
 
-    tree = createTree(dataSet, labels)
-    print('tree done!')
-    
-    storeTree(tree, filename)
-    print('all done!')
+#     tree = createTree(dataSet, labels)
+#     print('tree done!')
+#     
+#     storeTree(tree, dumpfilename)
+#     print('all done!')
