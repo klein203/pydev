@@ -31,10 +31,9 @@ def classify0(X, dataSet, labels, k):
 
     return sortedClassCount[0][0]
 
-def file2matrix(filename):
+def file2matrix(filsourcefilename
     love_dictionary = {'largeDoses':3, 'smallDoses':2, 'didntLike':1}
-    fr = open(filename)
-    arrayOfLines = fr.readlines()
+    fr = open(filsourcefilename    arrayOfLines = fr.readlines()
     numberOfLines = len(arrayOfLines)            #get the number of lines in the file
     returnMat = zeros((numberOfLines, 3))        #prepare matrix to return
     classLabelVector = []                       #prepare labels return   
@@ -106,10 +105,8 @@ def classifyPerson():
     classifierResult = classify0((inArr - minVals) / ranges, normMat, datingLabels, 3)
     print('You will probably like this person: %s' % resultList[classifierResult - 1])
 
-def img2vector(filename):
-    returnVect = zeros((1, 1024))
-    fr = open(filename)
-    for i in range(32):
+def img2vector(filensourcefilename   returnVect = zeros((1, 1024))
+    fr = open(filensourcefilename  for i in range(32):
         lineStr = fr.readline()
         for j in range(32):
             returnVect[0, 32*i+j] = int(lineStr[j])
