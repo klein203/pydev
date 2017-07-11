@@ -554,16 +554,14 @@ def checkValidVin(vin):
 def splitVinFeatures(s):
     vinFeatures = []
     vinFeatures.append(s[0:3])    # WMI
-    vinFeatures.append(s[3:9])    # VDS
+    vinFeatures.append(s[3:8])    # VDS, exclude checksum
     vinFeatures.append(s[9])  # year
     vinFeatures.append(s[10]) # assembler
-#     print(vinFeatures)
     return vinFeatures
 
-def createDataSet():
-    sourcefilename = 'd:/tmp/result_small.txt'
+def createDataSet(filename):
     dataSet = []
-    with open(sourcefilename, 'r', encoding='utf-8') as fr:
+    with open(filename, 'r', encoding='utf-8') as fr:
         for line in fr.readlines():
             record = splitLineCol(line.strip())
             nFeatures = splitVinFeatures(record[3])
@@ -572,11 +570,11 @@ def createDataSet():
 
 #     col_labels = ['id', 'model_id', 'model_name', 'vin', 'del_flag', 'asset_id']
 #     vin_labels = ['WMI', 'VDS', 'year', 'assembler']
-    res_labels = ['WMI', 'VDS', 'year', 'assembler', 'model_id']
-    return dataSet, res_labels
+    labels = ['WMI', 'VDS', 'year', 'assembler']
+    return dataSet, labels
 
 def dataPrepare():
-    sourcefilename = 'd:/tmp/t_cust_vehicle.txt'
+    sourcefilename = 'd:/tmp/t_cust_vehicle_raw.txt'
     resultfilename = 'd:/tmp/result.txt'
     errorfilename = 'd:/tmp/error.txt'
     total_line_cnt = 0
@@ -610,33 +608,40 @@ def dataPrepare():
 
 def createTree(filename):
     dataSet, labels = createDataSet(filename)
-    print('dataset done!')
 
     tree = Tree.createTree(dataSet, labels)
-    print('tree done!')
-    
+    return tree
+
+def storeTree(tree, filename):    
     Tree.storeTree(tree, filename)
-    print('all done!')
 
 def loadTree(filename):
     tree = Tree.grabTree(filename)
-    print('tree done!')
     return tree
 
 def displayTree(tree):
     TreePlotter.createPlot(tree)
-    print('plot done!')
 
 if __name__ == '__main__':
-    dumpfilename = 'd:/tmp/vintree.pickle' 
-    testfilename = 'd:/tmp/vintest.txt' 
 #     dataPrepare()
+    trainingfilename = 'd:/tmp/training_500000.txt' 
+    dumpfilename = 'd:/tmp/vintree_500000.pickle' 
+    testfilename = 'd:/tmp/vintest_1000.txt' 
+
+#     tree = createTree(trainingfilename)
+#     storeTree(tree, dumpfilename)
+
     tree = loadTree(dumpfilename)
 #     print(tree)
-    testDataSet, labels = Tree.createDataSet(testfilename)
-#     print(testDataSet, labels)
-    
+# 
+    testDataSet, labels = createDataSet(testfilename)
+    total_cnt = 0
+    error_cnt = 0
     for item in testDataSet:
-        Tree.classify(tree, labels, item)
+        label = Tree.classify(tree, labels, item[0:-1])
+        if item[-1] != label:
+            error_cnt += 1
+        total_cnt += 1
+        print('test: %s, target: %s, %s, error %.2f\%' % (item[0:-1], label, (error_cnt * 100 / total_cnt)))
     
-    
+#     TreePlotter.createPlot(tree)

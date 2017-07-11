@@ -20,20 +20,19 @@ def splitLineCol(line):
     dataset = line.split(',')
     return dataset
 
-def createDataSet(filename):
-    dataSet = []
-    with open(filename, 'r', encoding='utf-8') as fr:
-        for line in fr.readlines():
-            record = splitLineCol(line.strip())
-            nFeatures = splitVinFeatures(record[3])
-            nFeatures.append(record[1])
-            dataSet.append(nFeatures)
+# def createDataSet(filename):
+#     dataSet = []
+#     with open(filename, 'r', encoding='utf-8') as fr:
+#         for line in fr.readlines():
+#             record = splitLineCol(line.strip())
+#             nFeatures = splitVinFeatures(record[3])
+#             nFeatures.append(record[1])
+#             dataSet.append(nFeatures)
 #             print(nFeatures)
-
-#     col_labels = ['id', 'model_id', 'model_name', 'vin', 'del_flag', 'asset_id']
-#     vin_labels = ['WMI', 'VDS', 'year', 'assembler']
-    res_labels = ['WMI', 'VDS', 'year', 'assembler', 'model_id']
-    return dataSet, res_labels
+# 
+# #     col_labels = ['id', 'model_id', 'model_name', 'vin', 'del_flag', 'asset_id']
+# #     vin_labels = ['WMI', 'VDS', 'year', 'assembler']
+#     return dataSet, vin_labels
 
 def calcShannonEnt(dataSet):
     numEntries = len(dataSet)
@@ -74,7 +73,8 @@ def chooseBestFeatureToSplit(dataSet):
     baseEntropy = calcShannonEnt(dataSet)
 #     print('dataSet %s \'s baseEntropy = [%s]' % (dataSet, baseEntropy))
     bestInfoGain = 0.0;
-    bestFeature = -1
+#     bestFeature = -1
+    bestFeature = 0
     for i in range(numFeatures):  # iterate over all the features
         featList = [example[i] for example in dataSet]  # create a list of all the examples of this feature
         uniqueVals = set(featList)  # get a set of unique values
@@ -97,13 +97,17 @@ def createTree(dataSet, labels):
         return classList[0]  # stop splitting when all of the classes are equal
     if len(dataSet[0]) == 1:  # stop splitting when there are no more features in dataSet
         return majorityCnt(classList)
+#     print('createTree-dataSet: ', dataSet)
     bestFeat = chooseBestFeatureToSplit(dataSet)
+#     print('createTree-bestFeat: ', bestFeat)
+    
     bestFeatLabel = labels[bestFeat]
     myTree = {bestFeatLabel:{}}
     del(labels[bestFeat])
 #     print(labels)
     featValues = [example[bestFeat] for example in dataSet]
     uniqueVals = set(featValues)
+#     print(uniqueVals)
     for value in uniqueVals:
         subLabels = labels[:]  # copy all of labels, so trees don't mess up existing labels
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
@@ -115,7 +119,6 @@ def classify(inputTree, featLabels, testVec):
         break
     secondDict = inputTree[firstStr]
     featIndex = featLabels.index(firstStr)
-    print(featIndex)
     key = testVec[featIndex]
     valueOfFeat = secondDict[key]
     if isinstance(valueOfFeat, dict): 
@@ -139,8 +142,8 @@ if __name__ == '__main__':
     sourcefilename = 'd:/tmp/result_training_100000.txt'
     dumpfilename = 'd:/tmp/vintree_100000.pickle'
     
-    dataSet, labels = createDataSet(sourcefilename)
-    print('dataset done!')
+#     dataSet, labels = createDataSet(sourcefilename)
+#     print('dataset done!')
 
 #     tree = createTree(dataSet, labels)
 #     print('tree done!')
