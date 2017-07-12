@@ -56,7 +56,8 @@ def chooseBestFeatureToSplit(dataSet):
     baseEntropy = calcShannonEnt(dataSet)
     print('dataSet %s \'s baseEntropy = [%s]' % (dataSet, baseEntropy))
     bestInfoGain = 0.0;
-    bestFeature = -1
+#     bestFeature = -1
+    bestFeature = 0
     for i in range(numFeatures):  # iterate over all the features
         featList = [example[i] for example in dataSet]  # create a list of all the examples of this feature
         uniqueVals = set(featList)  # get a set of unique values
