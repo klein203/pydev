@@ -39,6 +39,10 @@ def trainNB0(trainMatrix, trainCategory):
     p1Num = ones(numWords)  # change to ones() 
     p0Denom = 2.0;
     p1Denom = 2.0  # change to 2.0
+#     p0Num = zeros(numWords)
+#     p1Num = zeros(numWords) 
+#     p0Denom = 0.0
+#     p1Denom = 0.0
     for i in range(numTrainDocs):
         if trainCategory[i] == 1:
             p1Num += trainMatrix[i]
@@ -48,16 +52,19 @@ def trainNB0(trainMatrix, trainCategory):
             p0Denom += sum(trainMatrix[i])
     p1Vect = log(p1Num / p1Denom)  # change to log()
     p0Vect = log(p0Num / p0Denom)  # change to log()
+#     p1Vect = p1Num / p1Denom
+#     p0Vect = p0Num / p0Denom
+
     return p0Vect, p1Vect, pAbusive
 
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
-    p1 = sum(vec2Classify * p1Vec) + log(pClass1)  # element-wise mult
+    p1 = sum(vec2Classify * p1Vec) + log(pClass1)  # element-wise multiply
     p0 = sum(vec2Classify * p0Vec) + log(1.0 - pClass1)
     if p1 > p0:
         return 1
     else: 
         return 0
-    
+
 def bagOfWords2VecMN(vocabList, inputSet):
     returnVec = [0] * len(vocabList)
     for word in inputSet:
@@ -74,6 +81,7 @@ def testingNB():
     p0V, p1V, pAb = trainNB0(array(trainMat), array(listClasses))
     testEntry = ['love', 'my', 'dalmation']
     thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
+#     print(thisDoc)
     print(testEntry, 'classified as: ', classifyNB(thisDoc, p0V, p1V, pAb))
     testEntry = ['stupid', 'garbage']
     thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
@@ -175,15 +183,4 @@ def getTopWords(ny, sf):
         print(item[0])
 
 if __name__ == '__main__':
-    dataSet, classVec = loadDataSet()
-    vocabList = createVocabList(dataSet)
-    print(vocabList)
-    print()
-    trainMat = []
-    for data in dataSet:
-        vec = setOfWords2Vec(vocabList, data)
-        trainMat.append(vec)
-        print(vec)
-    
-    p0Vect, p1Vect, pAbusive = trainNB0(trainMat, classVec)
-    print(p0Vect, p1Vect, pAbusive)
+    testingNB()

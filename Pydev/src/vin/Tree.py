@@ -6,6 +6,7 @@ Created on 2017年7月10日
 
 from math import log
 import operator
+import FileUtil as fu
 
 def splitVinFeatures(s):
     vinFeatures = []

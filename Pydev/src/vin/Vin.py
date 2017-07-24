@@ -5,7 +5,13 @@ Created on 2017年7月7日
 '''
 
 import re
-from vin import Tree, TreePlotter
+from vin import Tree, TreePlotter, FileUtil as fu
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.naive_bayes import BernoulliNB
 
 def splitLineCol(line):
     dataset = line.split(',')
@@ -573,6 +579,48 @@ def createDataSet(filename):
     labels = ['WMI', 'VDS', 'year', 'assembler']
     return dataSet, labels
 
+def autoComplete(binS, l):
+    ch = '0'
+    s = binS[2:]  # skip 0b
+    iS = l - len(s)
+    retS = ''
+    while iS > 0:
+        retS += ch
+        iS -= 1
+    retS += s
+    return retS
+    
+
+def codeDict():
+    chScope = [str(x) for x in range(10)] + [x for x in 'ABCDEFGHJKLMNPRSTUVWXYZ']
+    d = {}
+    for ch in chScope:
+        b = bin(ord(ch) - 48)
+        d[ch] = autoComplete(b, 6)
+    return d
+
+def encode(ch, d):
+    s = d[ch]
+    return [int(x) for x in s]
+
+def createBayesDataSet(filename, d):
+    keys = [str(x) for x in range(1, 12) if x != 9] # skip checksum bit
+    X = []
+    y = []
+    with open(filename, 'r', encoding='utf-8') as fr:
+        for line in fr.readlines():
+            record = splitLineCol((fullToHalf(line)).strip())
+            vin = record[3].strip()
+            dataSet = []
+            for i in keys:
+                dataSet.extend(encode(vin[int(i)-1], d))
+            X.append(dataSet)
+            y.append(record[1]) # model_id
+    
+    return X, y
+    
+            
+            
 def dataPrepare():
     sourcefilename = 'd:/tmp/t_cust_vehicle_raw.txt'
     resultfilename = 'd:/tmp/result.txt'
@@ -624,24 +672,58 @@ def displayTree(tree):
 
 if __name__ == '__main__':
 #     dataPrepare()
-    trainingfilename = 'd:/tmp/training_500000.txt' 
-    dumpfilename = 'd:/tmp/vintree_500000.pickle' 
-    testfilename = 'd:/tmp/vintest_1000.txt' 
+    d = codeDict()
+    # scilearning Naive-Bayes
+    trainingfilename = 'd:/tmp/training_10000.txt'
+    dumpfilename = 'd:/tmp/vin_naivebayes_10000.pickle' 
+    testfilename = 'd:/tmp/vintest_1000.txt'
 
+#     X, y = createBayesDataSet(trainingfilename, d)
+#     nb = BernoulliNB()
+#     nb.fit(X, y)
+#     fu.store(nb, dumpfilename)
+    
+    
+    nb = fu.load(dumpfilename)
+    testX, testy = createBayesDataSet(testfilename, d)
+    y_pred = nb.predict(testX)
+    
+    with open('d:/tmp/vintest_1000_y.txt', 'w') as f:
+        print(testy, file=f)
+    
+    with open('d:/tmp/vintest_1000_pred.txt', 'w') as f:
+        print(y_pred, file=f)
+#     
+#     print(np.vstack((testy, y_pred)))
+#     print(type(y_pred))
+#     total_cnt = 0
+#     error_cnt = 0
+#     for item in y_pred:
+#         label = 
+#         if item[-1] != label:
+#             error_cnt += 1
+#         total_cnt += 1
+#         print('test: %s, target: %s, %s, error %.2f\%' % (item[0:-1], label, (error_cnt * 100 / total_cnt)))
+           
+    # customized DTs
+#     trainingfilename = 'd:/tmp/training_1000.txt' 
+#     dumpfilename = 'd:/tmp/vintree_1000.pickle' 
+#     testfilename = 'd:/tmp/vintest_1000.txt'
+ 
 #     tree = createTree(trainingfilename)
 #     storeTree(tree, dumpfilename)
 
-    tree = loadTree(dumpfilename)
+#     tree = loadTree(dumpfilename)
 #     print(tree)
 # 
-    testDataSet, labels = createDataSet(testfilename)
-    total_cnt = 0
-    error_cnt = 0
-    for item in testDataSet:
-        label = Tree.classify(tree, labels, item[0:-1])
-        if item[-1] != label:
-            error_cnt += 1
-        total_cnt += 1
-        print('test: %s, target: %s, %s, error %.2f\%' % (item[0:-1], label, (error_cnt * 100 / total_cnt)))
+#     testDataSet, labels = createDataSet(testfilename)
+#     total_cnt = 0
+#     error_cnt = 0
+#     for item in testDataSet:
+#         label = Tree.classify(tree, labels, item[0:-1])
+#         if item[-1] != label:
+#             error_cnt += 1
+#         total_cnt += 1
+#         print('test: %s, target: %s, %s, error %.2f\%' % (item[0:-1], label, (error_cnt * 100 / total_cnt)))
     
 #     TreePlotter.createPlot(tree)

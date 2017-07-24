@@ -1,14 +1,10 @@
-"""
-The :mod:`sklearn.datasets` module includes utilities to load datasets,
-including methods to load and fetch popular reference datasets. It also
-features some artificial data generators.
-"""
-
 from vin import Tree
 from vin import TreePlotter
 from vin import Vin
+from vin import FileUtil
 
 
 __all__ = ['Tree',
            'TreePlotter',
-           'Vin']
+           'Vin',
+           'FileUtil']
