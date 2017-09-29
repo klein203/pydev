@@ -12,7 +12,7 @@ IMG_WIDTH_PIXEL = 1024
 IMG_HEIGHT_PIXEL = 768
 IMG_CHANNEL = 3
 
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 1
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 3
 
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -43,7 +43,7 @@ def _generate_image_batch(image, min_queue_examples, batch_size):
     num_preprocess_threads = 1
 #     images = tf.train.shuffle_batch([image], batch_size=batch_size, num_threads=num_preprocess_threads, capacity=min_queue_examples + 3 * batch_size, min_after_dequeue=min_queue_examples)
     images = tf.train.batch([image], batch_size=batch_size)
-    tf.summary.image('images', images)
+    tf.summary.image('raw_images', images)
     return images
 
 def read_image(filename_queue):

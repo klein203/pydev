@@ -7,7 +7,7 @@ import numpy as np
 import tensorflow as tf
 import imginv.img_input as ip
 
-BATCH_SIZE = 1
+BATCH_SIZE = 3
 
 # def placeholder_inputs(batch_size):
 #     images_placeholder = tf.placeholder(tf.float32, shape=[batch_size, IMG_WIDTH_PIXEL, IMG_HEIGHT_PIXEL, IMG_CHANNEL], name='image_pl')
@@ -45,13 +45,13 @@ def inference(image, dtype='origin'):
 #     w = tf.Variable(initial_value=k, trainable=False, dtype=tf.float32, name='w')
 
     conv = tf.nn.conv2d(image, w, [1, 3, 3, 1], 'SAME', name='conv')
-    tf.summary.image(('conv_op_%s' % dtype), conv)
+    tf.summary.image(('%s_1_conv_op' % dtype), conv)
     
-    sigmoid = tf.sigmoid(conv, name='sig')
-    tf.summary.image(('sig_op_%s' % dtype), sigmoid)
+#     sigmoid = tf.sigmoid(conv, name='sig')
+#     tf.summary.image(('%s_2_sig_op' % dtype), sigmoid)
  
-    maxpool = tf.nn.max_pool(sigmoid, [1, 3, 3, 1], [1, 3, 3, 1], 'SAME', name='pool')
-    tf.summary.image(('maxpool_%s' % dtype), maxpool)
+    maxpool = tf.nn.max_pool(conv, [1, 3, 3, 1], [1, 3, 3, 1], 'SAME', name='pool')
+    tf.summary.image(('%s_3_maxpool_op' % dtype), maxpool)
 
     return maxpool
 
@@ -63,7 +63,11 @@ def inference(image, dtype='origin'):
 def train():    
     with tf.Graph().as_default() as g:
         examples = ip.data_inputs('d:/tmp/img/img_data/input/', BATCH_SIZE)
-        logits = inference(examples, 'gaussblur')
+        origin_logits = inference(examples, 'origin')
+        sharpen_logits = inference(examples, 'sharpen')
+        edge_logits = inference(examples, 'edge')
+        boxblur_logits = inference(examples, 'boxblur')
+        gaussblur_logits = inference(examples, 'gaussblur')
 
         summary_op = tf.summary.merge_all()
         
@@ -76,7 +80,7 @@ def train():
 
             summary_writer = tf.summary.FileWriter('d:/tmp/img/img_train/', sess.graph)
             
-            logits_op = sess.run(logits)
+            origin_logits_op, sharpen_logits_op, edge_logits_op, boxblur_logits_op, gaussblur_logits_op = sess.run([origin_logits, sharpen_logits, edge_logits, boxblur_logits, gaussblur_logits])
 #             print(logits_op)
 
             summary_writer.add_summary(summary_op.eval())
@@ -89,4 +93,7 @@ def main(argv=None):
     train()
 
 if __name__ == '__main__':
+    '''
+        CMD: tensorboard --logdir=D://tmp//img//img_train
+    '''
     tf.app.run(main=main)
