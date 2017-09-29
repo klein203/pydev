@@ -101,7 +101,7 @@ def do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_set
         feed_dict = fill_feed_dict(data_set, images_placeholder, labels_placeholder)
         true_count += sess.run(eval_correct, feed_dict=feed_dict)
     precision = float(true_count) / num_examples
-    print('Num examples: %d    Num correct: %d    Precision @ 1: %0.04f' % (num_examples, true_count, precision))
+    print("    Num examples: %d    Num correct: %d    Precision @ 1: %0.04f" % (num_examples, true_count, precision))
 
 
 def run_training():
@@ -169,36 +169,28 @@ def run_training():
             if step % 100 == 0:
                 # Print status to stdout.
                 print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
-                # Update the events file.
-                summary_str = sess.run(summary, feed_dict=feed_dict)
-                summary_writer.add_summary(summary_str, step)
-                summary_writer.flush()
+                
+            # Update the events file.
+            summary_str = sess.run(summary, feed_dict=feed_dict)
+            summary_writer.add_summary(summary_str, step)
+            summary_writer.flush()
 
             # Save a checkpoint and evaluate the model periodically.
             if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
                 checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
                 saver.save(sess, checkpoint_file, global_step=step)
                 # Evaluate against the training set.
+                # 55000 training samples (5000:)
                 print('Training Data Eval:')
-                do_eval(sess,
-                                eval_correct,
-                                images_placeholder,
-                                labels_placeholder,
-                                data_sets.train)
+                do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.train)
                 # Evaluate against the validation set.
+                # 5000 validation samples (0:5000)
                 print('Validation Data Eval:')
-                do_eval(sess,
-                                eval_correct,
-                                images_placeholder,
-                                labels_placeholder,
-                                data_sets.validation)
+                do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.validation)
                 # Evaluate against the test set.
+                # 10000 test samples (0:10000)
                 print('Test Data Eval:')
-                do_eval(sess,
-                                eval_correct,
-                                images_placeholder,
-                                labels_placeholder,
-                                data_sets.test)
+                do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_sets.test)
 
 
 def main(_):
