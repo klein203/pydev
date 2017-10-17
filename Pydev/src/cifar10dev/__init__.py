@@ -1,4 +1,4 @@
-# Copyright 2015 Google Inc. All Rights Reserved.
+# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+
 """Makes helper libraries available in the cifar10 package."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from cifar10dev import cifar10
-from cifar10dev import cifar10_input
+
+import cifar10dev.cifar10
+import cifar10dev.cifar10_input
